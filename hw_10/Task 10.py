@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Oct 13 11:06:44 2024
-
-@author: krivoshein
-"""
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -11,6 +5,8 @@ from sklearn.linear_model import LinearRegression
 import joblib
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.responses import JSONResponse
+import uvicorn
 
 
 # Загрузка данных
@@ -32,7 +28,7 @@ model.fit(X_train, y_train)
 
 # Сохранение модели
 joblib.dump(model, 'housing_model.pkl')
-# Создание экземпляра FastAPI
+
 app = FastAPI()
 
 # Загрузка модели
@@ -55,10 +51,12 @@ def predict(house: House):
 def predict_get(area: float, bedrooms: int):
     data = [[area, bedrooms]]
     prediction = model.predict(data)
-    return {"predicted_price": prediction[0]}
+    return JSONResponse(content= {"predicted_price": prediction[0]})
 
 # Реализация liveness-пробы (health-check)
 @app.get('/health')
 def health_check():
     return {"status": "up"}
 
+if __name__ == "__Task 10__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
